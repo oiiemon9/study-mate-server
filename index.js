@@ -50,8 +50,18 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/all-partners', async (req, res) => {
+      const result = await partnerProfilesCollection.find().toArray();
+      res.send(result);
+    });
+
     app.get('/find-partners', async (req, res) => {
       const search = req.query.search;
+      const sortBy = req.query.sortBy || '';
+
+      const experienceOrder = ['Beginner', 'Intermediate', 'Expert'].filter(
+        (x) => x !== sortBy
+      );
 
       let searchValue = '';
       if (search) {
@@ -59,8 +69,25 @@ async function run() {
       }
 
       const result = await partnerProfilesCollection
-        .find({ subject: { $regex: searchValue, $options: 'i' } })
+        .aggregate([
+          {
+            $match: {
+              subject: { $regex: searchValue, $options: 'i' },
+            },
+          },
+          {
+            $addFields: {
+              sortOrder: {
+                $indexOfArray: [experienceOrder, '$experienceLevel'],
+              },
+            },
+          },
+          {
+            $sort: { sortOrder: 1 },
+          },
+        ])
         .toArray();
+
       res.send(result);
     });
 
