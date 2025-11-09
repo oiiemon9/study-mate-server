@@ -50,6 +50,20 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/find-partners', async (req, res) => {
+      const search = req.query.search;
+
+      let searchValue = '';
+      if (search) {
+        searchValue = search;
+      }
+
+      const result = await partnerProfilesCollection
+        .find({ subject: { $regex: searchValue, $options: 'i' } })
+        .toArray();
+      res.send(result);
+    });
+
     await client.db('admin').command({ ping: 1 });
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
