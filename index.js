@@ -41,6 +41,15 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/top-study-partners', async (req, res) => {
+      const result = await partnerProfilesCollection
+        .find()
+        .sort({ rating: -1 })
+        .limit(4)
+        .toArray();
+      res.send(result);
+    });
+
     await client.db('admin').command({ ping: 1 });
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
