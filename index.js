@@ -32,10 +32,24 @@ async function run() {
 
     const studyMate = client.db('studyMate');
     const partnerProfilesCollection = studyMate.collection('partnerProfiles');
+    const myPartnerCollection = studyMate.collection('myPartner');
+
+    const findMyPartner = async (req, res, next) => {
+      const partnerInfo = req.body;
+      const query = {
+        userEmail: partnerInfo.userEmail,
+        partnerId: partnerInfo.partnerId,
+      };
+      const findMyPartner = await myPartnerCollection.findOne(query);
+      if (!findMyPartner) {
+        next();
+      } else {
+        res.send({ message: 'Partner Already Connected' });
+      }
+    };
 
     app.post('/partnerProfiles', async (req, res) => {
       const profile = req.body;
-      console.log(profile);
       profile.create_at = new Date();
       const result = await partnerProfilesCollection.insertOne(profile);
       res.send(result);
@@ -96,6 +110,22 @@ async function run() {
         .toArray();
 
       res.send(result);
+    });
+
+    app.post('/my-partner', findMyPartner, async (req, res) => {
+      const info = req.body;
+      const result = await myPartnerCollection.insertOne(info);
+      res.send(result);
+      if (result.insertedId) {
+        await partnerProfilesCollection.updateOne(
+          {
+            _id: new ObjectId(info.partnerId),
+          },
+          {
+            $inc: { partnerCount: 1 },
+          }
+        );
+      }
     });
 
     await client.db('admin').command({ ping: 1 });
