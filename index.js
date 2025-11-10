@@ -135,6 +135,27 @@ async function run() {
       }
     });
 
+    app.patch('/my-partner/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateInfo = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = { $set: updateInfo };
+      const options = {};
+      const result = await myPartnerCollection.updateOne(
+        query,
+        update,
+        options
+      );
+      res.send(result);
+    });
+
+    app.delete('/my-partner/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await myPartnerCollection.deleteOne(query);
+      res.send(result);
+    });
+
     await client.db('admin').command({ ping: 1 });
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
