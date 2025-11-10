@@ -112,6 +112,13 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/my-partner', async (req, res) => {
+      const email = req.query.email;
+      const query = { userEmail: email };
+      const result = await myPartnerCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post('/my-partner', findMyPartner, async (req, res) => {
       const info = req.body;
       const result = await myPartnerCollection.insertOne(info);
