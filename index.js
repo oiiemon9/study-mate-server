@@ -76,6 +76,17 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/related-partners', async (req, res) => {
+      const sub = req.query.subject;
+      const name = req.query.skip;
+      const query = {
+        subject: { $regex: sub, $options: 'i' },
+        name: { $ne: name },
+      };
+      const result = await partnerProfilesCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.get('/find-partners', async (req, res) => {
       const search = req.query.search;
       const sortBy = req.query.sortBy || '';
