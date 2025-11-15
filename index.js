@@ -28,7 +28,7 @@ app.listen(port, () => {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const studyMate = client.db('studyMate');
     const partnerProfilesCollection = studyMate.collection('partnerProfiles');
@@ -164,6 +164,35 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await myPartnerCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.get('/my-created-profile', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await partnerProfilesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.delete('/my-created-profile/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await partnerProfilesCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.patch('/my-created-profile/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateInfo = req.body;
+      console.log(id, updateInfo);
+      const query = { _id: new ObjectId(id) };
+      const update = { $set: updateInfo };
+      const options = {};
+      const result = await partnerProfilesCollection.updateOne(
+        query,
+        update,
+        options
+      );
       res.send(result);
     });
 
